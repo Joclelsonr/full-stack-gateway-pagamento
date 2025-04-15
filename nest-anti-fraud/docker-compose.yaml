@@ -6,8 +6,8 @@ services:
       - 3001:3000
     volumes:
       - .:/home/node/app
-    # networks:
-    #   - go-gateway_default
+    networks:
+      - go-gateway_default
     
   nestjs-db:
     image: postgres:16-alpine
@@ -16,9 +16,9 @@ services:
       POSTGRES_DB: mydb
     ports:
       - 5433:5432
-    # networks:
-    #   - go-gateway_default
+    networks:
+      - go-gateway_default
       
-# networks:
-#   go-gateway_default:
-#     external: true
+networks:
+  go-gateway_default:
+    external: true

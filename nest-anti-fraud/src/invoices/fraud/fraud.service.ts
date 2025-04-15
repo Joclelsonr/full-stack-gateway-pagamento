@@ -3,12 +3,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ProcessInvoiceFraudDto } from '../dto/process-invoice-fraud.dto';
 import { InvoiceStatus } from '@prisma/client';
 import { FraudAggregateSpecification } from './specifications/fraud-aggregate.specification';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { InvoiceProcessedEvent } from '../events/invoice-processed.event';
 
 @Injectable()
 export class FraudService {
   constructor(
     private prismaService: PrismaService,
     private fraudAggregateSpec: FraudAggregateSpecification,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async processInvoice(processInvoiceFraudDto: ProcessInvoiceFraudDto) {
@@ -53,6 +56,11 @@ export class FraudService {
             : InvoiceStatus.APPROVED,
         },
       });
+
+      await this.eventEmitter.emitAsync(
+        'invoice.processed',
+        new InvoiceProcessedEvent(invoice, fraudResult),
+      );
 
       return { invoice, fraudResult };
     });
